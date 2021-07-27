@@ -1,0 +1,14 @@
+# Goal of this lab: Deploy Jenkins as CICD-Server and manage pipelines on OpenShift
+
+```
+login as developer
+create a new project for ci-cd
+deploy jenkins from ephemeral template
+manage the jenkins-sync plugin to have access to other projects
+
+create a new project for the application (this name has to match with the name of the step above)
+add edit role to user jenkins to this project
+
+create a new BuildConfig and deploy it
+
+```
