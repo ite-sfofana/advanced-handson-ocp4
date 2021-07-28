@@ -35,6 +35,14 @@ Add edit role to user jenkins to this project
 oc policy add-role-to-user edit system:serviceaccount:ci-cd-server:jenkins -n simple-pipeline
 ```
 
+Adjust the application code
+
+```
+Open the Jenkinsfile in your repo and solve the TODO
+and commit changes
+```
+
+
 ### 5. Create a new BuildConfig and deploy it
 
 #### 5.1 Adjust and save the below BuildConfig as my-buildconfig.yaml
