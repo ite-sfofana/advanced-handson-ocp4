@@ -2,4 +2,4 @@
 
 ## Setup a simple pipeline 
 
-[Simple a CICD-Pipeline](simple-pipeline/simple-pipeline.adoc)
+[Simple a CICD-Pipeline](simple-pipeline/setupCICD.adoc)
