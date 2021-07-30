@@ -13,6 +13,14 @@ The following are the available build strategies in OpenShift:
 #### 2.1.3 Docker
 #### 2.1.4 Custom
 
+### 3. Creating Application from template
+
+'''
+oc get template django-psql-example -o yaml -n openshift
+oc describe template django-psql-example -n openshift
+oc new-app django-psql-example
+'''
+
 ## 3. Setup a CICD-Server 
 
 [Simple a CICD-Pipeline](simple-pipeline/setupCICD.adoc)
