@@ -17,6 +17,16 @@ The following are the available build strategies in OpenShift:
 #### 2.1.1 Source
 #### 2.1.2 Pipeline
 #### 2.1.3 Docker
+Let now build an app from an existing container image.
+
+````
+oc new-app openshiftkatacoda/blog-django-py --name blog-from-image
+oc expose svc/blog-from-image
+````
+Get the external url and go to a browser to see the application
+````
+oc get route/blog-from-image
+````
 #### 2.1.4 Custom
 
 ### 3. Creating Application from template
