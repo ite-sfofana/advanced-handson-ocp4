@@ -40,3 +40,7 @@ oc new-app django-psql-example
 ## 3. Setup a CICD-Server 
 
 [Simple a CICD-Pipeline](simple-pipeline/setupCICD.adoc)
+
+## 4. Injecting Configuration Data in to Application
+
+[Injecting config Data](app-config/readme.adoc)
