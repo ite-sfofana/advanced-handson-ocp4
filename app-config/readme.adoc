@@ -1,71 +1,73 @@
-# Goal of this lab: Deploy Jenkins as CICD-Server and manage pipelines on OpenShift
+# Injecting configuration Data in to application
 
-### 1. Login in to openshift cli (oc) as developer
-
+### 1. Create new app
 ```
-oc login -u developer -p developer
-```
-
-### 2. Create a new project named "ci-cd-server" 
-and deploy jenkins from ephemeral template 
-
-```
-oc new-project ci-cd-server
-oc get templates -n openshift | grep jenkins
-oc new-app --as-deployment-config jenkins-ephemeral -p MEMORY_LIMIT=2048Mi
+oc new-app --name myapp --as-deployment-config nodejs:12~https://github.com/ite-sfofana/openshift4-advanced-handson --context-dir=app-config
 oc get pods
 oc get route/jenkins -o jsonpath='{.spec.host}{"\n"}'
 ```
-### 3. Enable Jenkins-Server to sync BuildConfig with Openshift
+
+### 2. Open the url in a browser
 
 ```
-open the route above in browser and configure jenkins
-Manage Jenkins --> Configure Jenkins --> OpenShift Jenkins Sync --> Namespace 
-add the name of the project to sync with. Our project name is "simple-pipeline"
+open the route above in browser
 ```
 
-### 4. Create a new project for the application
+### 3. Create a new configuration map resource called myappconf. Store a key called
+APP_MSG with the value Test Message in this configuration map
 
 ```
-oc new-project simple-pipeline
-```
-Add edit role to user jenkins to this project
-
-```
-oc policy add-role-to-user edit system:serviceaccount:ci-cd-server:jenkins -n simple-pipeline
+oc create cm myappconf --from-literal="APP_MSG=TEST Message"
 ```
 
-Adjust the application code
+### 4. Create a new secret to store the contents of the myapp.sec file
+We download the file from git.
 
 ```
-Open the Jenkinsfile in your repo and solve the TODO
-and commit changes
+curl 
+oc create secret generic myappfilesec --from-file myapp.sec
+oc get secret/myappfilesec -o json
 ```
-
-
-### 5. Create a new BuildConfig and deploy it
-
-#### 5.1 Adjust and save the below BuildConfig as my-buildconfig.yaml
+## 5 Inject the configuration map and the secret into the application container.
+### 5.1 Use the oc set env command to add the configuration map to the deployment configuration
 
 ```
-kind: "BuildConfig"
-apiVersion: "build.openshift.io/v1"
-metadata:
-  name: "simple-pipeline"
-spec:
-  source:
-    contextDir: simple-pipeline
-    git:
-      uri: "https://github.com/yourgituser/advanced-handson-ocp4"
-      ref: "simple-pipeline"
-  strategy:
-    jenkinsPipelineStrategy:
-      type: JenkinsPipeline
+oc set env dc/myapp --from configmap/myappconf
 ```
-Create and Start the deployment
+### 5.2 Use the oc set volume command to add the secret to the deployment configuration:
 
 ```
-oc create -f my-buildconfig.yaml
-oc start-build simple-pipeline
+oc set volume dc/myapp --add -t secret -m /opt/app-root/secure --name myappsec-vol --secret-name myappfilesec
 ```
-### 6. Now go to Jenkins under Builds to see the pipeline
+
+## 6 Verify that the application is redeployed and uses the data from the configuration map and the secret.
+### 6.1 Wait until the application pod is ready and in a Running state. Get the name of the application pod using the oc get pods command
+```
+oc status
+oc get pods
+```
+
+### 6.2 Use the oc rsh command to inspect the environment variables in the container
+
+```
+oc rsh myapp-xxxx env | grep APP_MSG
+```
+### 6.3 Verify that the configuration map and secret were injected into the container. Retest the application using the route URL
+
+## 7. Change the information stored in the configuration map and retest the application.
+### 7.1 Use the oc edit configmap command to change the value of the APP_MSG key:
+```
+oc edit cm/myappconf
+```
+
+### 7.2 Verify that the value in the APP_MSG key is updated:
+
+```
+oc describe cm/myappconf
+```
+### 7.3 Use the oc rollout latest command to trigger a new deployment. This ensures that the application picks up the changed values in the configuration map
+```
+oc rollout latest dc/myapp
+oc get pods
+```
+### 7.4 Verify the values in browser
