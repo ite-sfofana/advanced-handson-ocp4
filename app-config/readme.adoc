@@ -4,6 +4,7 @@
 ```
 oc new-app --name myapp --as-deployment-config nodejs:12~https://github.com/ite-sfofana/openshift4-advanced-handson --context-dir=app-config
 oc get pods
+oc expose svc/myapp
 oc get route/jenkins -o jsonpath='{.spec.host}{"\n"}'
 ```
 
