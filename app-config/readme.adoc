@@ -9,9 +9,6 @@ oc get route/jenkins -o jsonpath='{.spec.host}{"\n"}'
 
 ### 2. Open the url in a browser
 
-```
-open the route above in browser
-```
 
 ### 3. Create a new configuration map resource called myappconf. Store a key called
 APP_MSG with the value Test Message in this configuration map
@@ -24,7 +21,7 @@ oc create cm myappconf --from-literal="APP_MSG=TEST Message"
 We download the file from git.
 
 ```
-curl 
+wget https://raw.githubusercontent.com/ite-sfofana/openshift4-advanced-handson/main/app-config/myapp.sec
 oc create secret generic myappfilesec --from-file myapp.sec
 oc get secret/myappfilesec -o json
 ```
