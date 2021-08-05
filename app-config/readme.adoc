@@ -1,0 +1,71 @@
+# Goal of this lab: Deploy Jenkins as CICD-Server and manage pipelines on OpenShift
+
+### 1. Login in to openshift cli (oc) as developer
+
+```
+oc login -u developer -p developer
+```
+
+### 2. Create a new project named "ci-cd-server" 
+and deploy jenkins from ephemeral template 
+
+```
+oc new-project ci-cd-server
+oc get templates -n openshift | grep jenkins
+oc new-app --as-deployment-config jenkins-ephemeral -p MEMORY_LIMIT=2048Mi
+oc get pods
+oc get route/jenkins -o jsonpath='{.spec.host}{"\n"}'
+```
+### 3. Enable Jenkins-Server to sync BuildConfig with Openshift
+
+```
+open the route above in browser and configure jenkins
+Manage Jenkins --> Configure Jenkins --> OpenShift Jenkins Sync --> Namespace 
+add the name of the project to sync with. Our project name is "simple-pipeline"
+```
+
+### 4. Create a new project for the application
+
+```
+oc new-project simple-pipeline
+```
+Add edit role to user jenkins to this project
+
+```
+oc policy add-role-to-user edit system:serviceaccount:ci-cd-server:jenkins -n simple-pipeline
+```
+
+Adjust the application code
+
+```
+Open the Jenkinsfile in your repo and solve the TODO
+and commit changes
+```
+
+
+### 5. Create a new BuildConfig and deploy it
+
+#### 5.1 Adjust and save the below BuildConfig as my-buildconfig.yaml
+
+```
+kind: "BuildConfig"
+apiVersion: "build.openshift.io/v1"
+metadata:
+  name: "simple-pipeline"
+spec:
+  source:
+    contextDir: simple-pipeline
+    git:
+      uri: "https://github.com/yourgituser/advanced-handson-ocp4"
+      ref: "simple-pipeline"
+  strategy:
+    jenkinsPipelineStrategy:
+      type: JenkinsPipeline
+```
+Create and Start the deployment
+
+```
+oc create -f my-buildconfig.yaml
+oc start-build simple-pipeline
+```
+### 6. Now go to Jenkins under Builds to see the pipeline
